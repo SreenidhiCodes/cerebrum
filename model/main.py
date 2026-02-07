@@ -20,13 +20,19 @@ def process_input(user_text: str):
         return
 
    
-    if is_task_related(user_text) and not temp_manager.has_active_memory():
-        mem_id = temp_manager.create_new_memory(user_text)
-        print(f"[System] New temporary memory created: #{mem_id}")
+        
+    if is_task_related(user_text):
+        if not temp_manager.has_active_memory():
+            mem_id = temp_manager.create_new_memory(user_text)
+            print(f"[System] New temporary memory created: #{mem_id}")
+        else:
+            active_id = temp_manager.data["active_memory_id"]
+            last_entry = temp_manager.data["memories"][active_id]["content"][-1]
 
-    elif temp_manager.has_active_memory():
-        temp_manager.append_to_active(user_text)
-        print("[System] Appended to active temporary memory")
+            if is_same_topic(user_text, last_entry):
+                temp_manager.append_to_active(user_text)
+                print("[System] Appended to active temporary memory")
+            else:
+                mem_id = temp_manager.create_new_memory(user_text)
+                print(f"[System] New temporary memory created: #{mem_id}")
 
-    else:
-        print("[System] No memory stored")
