@@ -1,3 +1,13 @@
+PERMANENT_KEYWORDS = [
+    "i prefer",
+    "i like",
+    "always",
+    "from now on",
+    "my name is",
+    "i am a",
+    "never"
+]
+
 TASK_KEYWORDS = [
     "hackathon",
     "competition",
@@ -11,11 +21,11 @@ TASK_KEYWORDS = [
 ]
 
 
+def is_permanent_memory(text: str) -> bool:
+    text = text.lower()
+    return any(word in text for word in PERMANENT_KEYWORDS)
+
+
 def is_task_related(text: str) -> bool:
     text = text.lower()
     return any(word in text for word in TASK_KEYWORDS)
-
-
-def should_create_temp_memory(text: str, has_active: bool) -> bool:
-    return is_task_related(text) and not has_active
-
