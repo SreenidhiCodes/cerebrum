@@ -13,3 +13,9 @@ while True:
         break
 
     process_input(user_input)
+    
+    memories = retrieve_relevant_memories()
+    if memories:
+        print("[System] Active Memories:")
+        for mem in memories:
+            print("   ", mem)
