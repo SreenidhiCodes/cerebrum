@@ -1,13 +1,14 @@
 from model.main import process_input
 
-conversation = [
-    "I am participating in the Neuro Challenge hackathon",
-    "It requires a PPT submission",
-    "The deadline is next week",
-    "Now help me prepare for my exam"
-]
+print("\n---(Long-Form) Cerebrum Memory Demo---")
+print("Type your messages below.")
+print("Type 'exit' or 'quit' to end the demo.\n")
 
-for msg in conversation:
-    print(f"\nUser: {msg}")
-    process_input(msg)
+while True:
+    user_input = input("User: ").strip()
 
+    if user_input.lower() in ["exit", "quit"]:
+        print("\n[System] Demo ended.")
+        break
+
+    process_input(user_input)
