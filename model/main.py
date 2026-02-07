@@ -1,6 +1,7 @@
 from model.memorymanager import TemporaryMemoryManager
 from model.permanentmemorymanager import PermanentMemoryManager
 from model.memoryclassifier import is_permanent_memory, is_task_related
+from model.retriever import retrieve_relevant_memories
 
 
 def process_input(user_text: str):
