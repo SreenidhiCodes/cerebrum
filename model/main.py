@@ -7,6 +7,11 @@ def process_input(user_text: str):
     temp_manager = TemporaryMemoryManager()
     perm_manager = PermanentMemoryManager()
 
+     
+    if is_forget_request(user_text) and temp_manager.has_active_memory():
+        temp_manager.end_active_memory()
+        print("[System] Temporary memory ended")
+        return
     
     if is_permanent_memory(user_text):
         perm_manager.add_memory(user_text)
