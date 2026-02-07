@@ -3,6 +3,7 @@ from model.main import process_input
 print("\n---(Long-Form) Cerebrum Memory Demo---")
 print("Type your messages below.")
 print("Type 'exit' or 'quit' to end the demo.\n")
+print("[System] Temporary memories auto-expire after 30 days unless ended earlier.\n")
 
 while True:
     user_input = input("User: ").strip()
