@@ -42,3 +42,9 @@ def is_forget_request(text: str) -> bool:
 def is_task_related(text: str) -> bool:
     text = text.lower()
     return any(word in text for word in TASK_KEYWORDS)
+
+def is_same_topic(text1: str, text2: str) -> bool:
+    words1 = set(text1.lower().split())
+    words2 = set(text2.lower().split())
+    overlap = words1.intersection(words2)
+    return len(overlap) >= 2
