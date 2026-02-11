@@ -11,55 +11,77 @@ CHAT_UI = """
     <title>Cerebrum Memory Engine</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #0f172a;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px;
-        }
-        h1 {
-            color: #38bdf8;
-        }
-        #chatbox {
-            width: 80%;
-            max-width: 800px;
-            height: 400px;
-            background: #1e293b;
+            background-color: #000000;
+            color: #00ff88;
+            font-family: Consolas, monospace;
+            margin: 0;
             padding: 20px;
-            overflow-y: auto;
-            border-radius: 10px;
+        }
+
+        h1 {
+            color: #00ff88;
+            text-align: center;
             margin-bottom: 20px;
         }
-        .user { color: #facc15; }
-        .assistant { color: #4ade80; }
+
+        #chatbox {
+            background-color: #0a0a0a;
+            border: 1px solid #00ff88;
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+
+        .user {
+            color: #00ffff;
+            margin-bottom: 8px;
+        }
+
+        .assistant {
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+
+        #inputArea {
+            display: flex;
+        }
+
         input {
-            width: 70%;
+            flex: 1;
+            background-color: #000000;
+            color: #00ff88;
+            border: 1px solid #00ff88;
             padding: 10px;
-            border-radius: 5px;
-            border: none;
+            font-family: Consolas, monospace;
+            font-size: 14px;
         }
+
         button {
-            padding: 10px 15px;
-            background-color: #38bdf8;
-            border: none;
-            border-radius: 5px;
+            background-color: #000000;
+            color: #00ff88;
+            border: 1px solid #00ff88;
+            padding: 10px 20px;
             cursor: pointer;
+            font-family: Consolas, monospace;
         }
+
         button:hover {
-            background-color: #0ea5e9;
+            background-color: #003322;
         }
     </style>
 </head>
 <body>
 
-<h1>Cerebrum Memory Engine</h1>
+<h1>CEREBRUM MEMORY ENGINE</h1>
 
 <div id="chatbox"></div>
 
-<input type="text" id="message" placeholder="Type your message..." />
-<button onclick="sendMessage()">Send</button>
+<div id="inputArea">
+    <input type="text" id="message" placeholder="Type command..." />
+    <button onclick="sendMessage()">EXECUTE</button>
+</div>
 
 <script>
 async function sendMessage() {
@@ -69,7 +91,7 @@ async function sendMessage() {
     const message = input.value;
     if (!message) return;
 
-    chatbox.innerHTML += "<div class='user'><b>User:</b> " + message + "</div>";
+    chatbox.innerHTML += "<div class='user'>> User: " + message + "</div>";
 
     const response = await fetch("/chat", {
         method: "POST",
@@ -79,11 +101,17 @@ async function sendMessage() {
 
     const data = await response.json();
 
-    chatbox.innerHTML += "<div class='assistant'><b>Assistant:</b> " + JSON.stringify(data) + "</div>";
+    chatbox.innerHTML += "<div class='assistant'>> Assistant: " + JSON.stringify(data, null, 2) + "</div>";
     chatbox.scrollTop = chatbox.scrollHeight;
 
     input.value = "";
 }
+
+document.getElementById("message").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
 </script>
 
 </body>
