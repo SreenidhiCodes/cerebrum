@@ -11,8 +11,16 @@ class TemporaryMemoryManager:
         self._load()
 
     def _load(self):
-        with open(TEMP_MEMORY_PATH, "r") as f:
-            self.data = json.load(f)
+        if not os.path.exists(TEMP_MEMORY_PATH):
+            self.data = {
+                "counter": 0,
+                "active_memory_id": None,
+                "memories": {}
+            }
+            self._save()
+        else:
+            with open(TEMP_MEMORY_PATH, "r") as f:
+                self.data = json.load(f)
 
     def _save(self):
         with open(TEMP_MEMORY_PATH, "w") as f:
@@ -21,28 +29,35 @@ class TemporaryMemoryManager:
     def has_active_memory(self):
         return self.data["active_memory_id"] is not None
 
-    def create_new_memory(self, initial_text):
+    def create_new_memory(self, initial_text, origin_turn):
+        
         self.data["counter"] += 1
         mem_id = f"T{self.data['counter']}"
 
         self.data["active_memory_id"] = mem_id
         self.data["memories"][mem_id] = {
+            "memory_id": mem_id,
+            "type": "temporary",
             "content": [initial_text],
+            "origin_turn": origin_turn,
             "created_at": datetime.utcnow().isoformat(),
             "expires_at": (
                 datetime.utcnow() + timedelta(days=TEMP_EXPIRY_DAYS)
-            ).isoformat()
+            ).isoformat(),
+            "last_used_turn": origin_turn
         }
 
         self._save()
         return mem_id
+        
 
-    def append_to_active(self, text):
+    def append_to_active(self, text, turn_id):
         mem_id = self.data["active_memory_id"]
         if not mem_id:
             return None
 
         self.data["memories"][mem_id]["content"].append(text)
+        self.data["memories"][mem_id]["last_used_turn"] = turn_id
         self._save()
         return mem_id
 
@@ -50,18 +65,9 @@ class TemporaryMemoryManager:
         self.data["active_memory_id"] = None
         self._save()
 
-    def cleanup_expired(self):
-        now = datetime.utcnow()
-        expired = []
-
-        for mem_id, mem in self.data["memories"].items():
-            if datetime.fromisoformat(mem["expires_at"]) < now:
-                expired.append(mem_id)
-
-        for mem_id in expired:
-            del self.data["memories"][mem_id]
-            if self.data["active_memory_id"] == mem_id:
-                self.data["active_memory_id"] = None
-
-        self._save()
+    def get_active_memory(self):
+        mem_id = self.data["active_memory_id"]
+        if not mem_id:
+            return None
+        return self.data["memories"].get(mem_id)
 
