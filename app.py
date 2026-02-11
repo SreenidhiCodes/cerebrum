@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 from model.main import process_input
 import traceback
+import os
 
 app = Flask(__name__)
+
 
 @app.route("/")
 def home():
@@ -11,16 +13,23 @@ def home():
         "status": "running"
     })
 
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "healthy"})
+
+
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
         data = request.get_json()
-        user_input = data.get("message", "")
 
-        if not user_input:
+        if not data or "message" not in data:
             return jsonify({
-                "error": "No message provided"
+                "error": "Request must contain JSON with 'message' field"
             }), 400
+
+        user_input = data["message"]
 
         result = process_input(user_input)
 
@@ -34,9 +43,5 @@ def chat():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
-
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
