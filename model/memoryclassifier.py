@@ -1,50 +1,56 @@
-PERMANENT_KEYWORDS = [
-    "i prefer",
-    "i like",
-    "always",
-    "from now on",
-    "my name is",
-    "i am a",
-    "never"
-]
-
-TASK_KEYWORDS = [
-    "hackathon",
-    "competition",
-    "project",
-    "assignment",
-    "ppt",
-    "presentation",
-    "exam",
-    "submission",
-    "deadline"
-]
-
-FORGET_KEYWORDS = [
-    "forget this",
-    "end this",
-    "this is done",
-    "you can forget",
-    "no longer needed",
-    "end this task"
-]
-
 def is_permanent_memory(text: str) -> bool:
-    text = text.lower()
-    return any(word in text for word in PERMANENT_KEYWORDS)
-
-def is_forget_request(text: str) -> bool:
-    text = text.lower()
-    return any(word in text for word in FORGET_KEYWORDS)
-
+    t = text.lower()
+    permanent_keywords = [
+        "i prefer",
+        "i like",
+        "i speak",
+        "i usually",
+        "my preference",
+        "i want answers in",
+        "i am comfortable with"
+    ]
+    return any(k in t for k in permanent_keywords)
 
 
 def is_task_related(text: str) -> bool:
-    text = text.lower()
-    return any(word in text for word in TASK_KEYWORDS)
+    t = text.lower()
+    task_keywords = [
+        "hackathon",
+        "project",
+        "design",
+        "architecture",
+        "ppt",
+        "presentation",
+        "evaluation",
+        "demo",
+        "final year",
+        "college project",
+        "system"
+    ]
+    return any(k in t for k in task_keywords)
 
-def is_same_topic(text1: str, text2: str) -> bool:
-    words1 = set(text1.lower().split())
-    words2 = set(text2.lower().split())
-    overlap = words1.intersection(words2)
-    return len(overlap) >= 2
+
+def is_forget_request(text: str) -> bool:
+    t = text.lower()
+    return any(k in t for k in [
+        "end",
+        "stop",
+        "finish",
+        "close this",
+        "end this task"
+    ])
+
+
+def is_audit_request(text: str) -> bool:
+    t = text.lower()
+    audit_keywords = [
+        "what do you remember",
+        "what did you store",
+        "show memory",
+        "show stored",
+        "how is it stored",
+        "memory audit",
+        "stored data"
+    ]
+    return any(k in t for k in audit_keywords)
+
