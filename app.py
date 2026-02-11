@@ -129,7 +129,6 @@ def home():
 def health():
     return jsonify({"status": "healthy"})
 
-
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -138,14 +137,15 @@ def chat():
         return jsonify({"error": "No message provided"}), 400
 
     user_input = data["message"]
-
     result = process_input(user_input)
 
     return jsonify(result)
 
 
-
+import os
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
 
