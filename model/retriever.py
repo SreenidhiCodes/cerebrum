@@ -4,16 +4,10 @@ from model.memorymanager import TemporaryMemoryManager
 
 def retrieve_relevant_memories(current_turn):
     """
-    Retrieve memories relevant at the current turn.
-
-    Final Retrieval Policy:
-    1. ALWAYS recall all Permanent Memories (P)
-    2. ALSO recall Active Temporary Memory (T) if it exists
-
-    Guarantees:
-    - No memory hallucination
-    - No inferred memory
-    - Fully auditable by turn number
+    Retrieval Policy:
+    1. Always recall all Permanent Memories (P)
+    2. Recall Active Temporary Memory (T) if valid
+    3. Update last_used_turn safely via manager APIs
     """
 
     recalled = []
@@ -21,26 +15,21 @@ def retrieve_relevant_memories(current_turn):
     perm = PermanentMemoryManager()
     temp = TemporaryMemoryManager()
 
-    
+   
     for mem in perm.get_all():
-        mem["last_used_turn"] = current_turn
+        perm.mark_used(mem["memory_id"], current_turn)
+
         recalled.append({
             "memory_id": mem["memory_id"],
             "type": "permanent",
-            "key": mem["key"],
-            "value": mem["value"],
             "origin_turn": mem["origin_turn"],
-            "last_used_turn": mem["last_used_turn"]
+            "last_used_turn": current_turn
         })
 
     
-    perm._save()
+    if temp.has_active_memory():
+        active_mem = temp.get_active_memory()
 
-    
-    active_id = temp.data.get("active_memory_id")
-
-    if active_id:
-        active_mem = temp.data["memories"].get(active_id)
         if active_mem:
             active_mem["last_used_turn"] = current_turn
             temp._save()
@@ -48,9 +37,8 @@ def retrieve_relevant_memories(current_turn):
             recalled.append({
                 "memory_id": active_mem["memory_id"],
                 "type": "temporary",
-                "content": active_mem["content"],
                 "origin_turn": active_mem["origin_turn"],
-                "last_used_turn": active_mem["last_used_turn"]
+                "last_used_turn": current_turn
             })
 
     return recalled
