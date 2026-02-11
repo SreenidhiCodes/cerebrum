@@ -1,4 +1,5 @@
 import json
+import os
 from model.memoryclassifier import (
     is_permanent_memory,
     is_task_related,
@@ -12,7 +13,18 @@ from model.retriever import retrieve_relevant_memories
 SESSION_PATH = "memorystore/session.json"
 
 
+def initialize_session():
+    if not os.path.exists("memorystore"):
+        os.makedirs("memorystore")
+
+    if not os.path.exists(SESSION_PATH):
+        with open(SESSION_PATH, "w") as f:
+            json.dump({"current_turn": 0}, f, indent=4)
+
+
 def get_next_turn():
+    initialize_session()
+
     with open(SESSION_PATH, "r") as f:
         data = json.load(f)
 
@@ -30,6 +42,7 @@ def process_input(user_text: str):
     perm = PermanentMemoryManager()
     temp = TemporaryMemoryManager()
 
+   
     if is_forget_request(user_text) and temp.has_active_memory():
         temp.end_active_memory()
         return {
@@ -37,6 +50,7 @@ def process_input(user_text: str):
             "event": "temporary_memory_ended"
         }
 
+    
     if is_audit_request(user_text):
         recalled = retrieve_relevant_memories(turn_id)
         return {
@@ -44,6 +58,7 @@ def process_input(user_text: str):
             "audit": recalled
         }
 
+    
     if is_permanent_memory(user_text):
         mem_id, _ = perm.add_memory(user_text, turn_id)
         return {
@@ -52,6 +67,7 @@ def process_input(user_text: str):
             "memory_id": mem_id
         }
 
+    
     if is_task_related(user_text):
         if not temp.has_active_memory():
             mem_id = temp.create_new_memory(user_text, turn_id)
@@ -62,35 +78,25 @@ def process_input(user_text: str):
             }
         else:
             mem_id = temp.append_to_active(user_text, turn_id)
-            note = ""
-            active = temp.get_active_memory()
-            if active.get("reason") == "overflow":
-                note = "continuation of previous task memory (overflow)"
             return {
                 "turn": turn_id,
                 "event": "temporary_memory_updated",
-                "memory_id": mem_id,
-                "note": note
+                "memory_id": mem_id
             }
 
+   
     recalled = retrieve_relevant_memories(turn_id)
+
     if recalled:
-        ids = " | ".join(
-            f"{m['memory_id']}" for m in recalled
-        )
+        ids = " | ".join(f"{m['memory_id']} recalled" for m in recalled)
         return {
             "turn": turn_id,
             "event": "memory_recalled",
-            "details": f"Turn {turn_id} → {ids} recalled"
+            "details": f"Turn {turn_id} → {ids}"
         }
 
+  
     return {
         "turn": turn_id,
         "event": "no_memory_action"
     }
-
-                print("[System] Appended to active temporary memory")
-            else:
-                mem_id = temp_manager.create_new_memory(user_text)
-                print(f"[System] New temporary memory created: #{mem_id}")
-
